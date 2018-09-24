@@ -9,5 +9,5 @@
 import CoreLocation
 
 protocol WeatherServiceProtocol {
-    func retrieveTemperatureAtCoordinate(coordinate: CLLocationCoordinate2D, success: (Float) -> (), failure: (String) -> ())
+    func retrieveTemperatureAtCoordinate(_ coordinate: CLLocationCoordinate2D, success: @escaping (Float) -> (), failure: @escaping (String) -> ())
 }

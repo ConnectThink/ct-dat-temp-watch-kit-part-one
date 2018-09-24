@@ -6,40 +6,39 @@
 //  Copyright (c) 2015 Connect Think. All rights reserved.
 //
 
-import AlamoFire
+import Alamofire
 import CoreLocation
 import SwiftyJSON
 
 class OpenWeatherMapWeatherService: NSObject, WeatherServiceProtocol {
     
-    private let rootApiUrl = "http://api.openweathermap.org/data/2.5"
+    private let rootApiUrl = "https://api.openweathermap.org/data/2.5"
     
-    func retrieveTemperatureAtCoordinate(coordinate: CLLocationCoordinate2D, success: (Float) -> (), failure: (String) -> ()) {
-        let url = "\(self.rootApiUrl)/weather?lat=\(coordinate.latitude)&lon=\(coordinate.longitude)&units=imperial"
+    func retrieveTemperatureAtCoordinate(_ coordinate: CLLocationCoordinate2D, success: @escaping (Float) -> (), failure: @escaping (String) -> ()) {
+        let url = "\(self.rootApiUrl)/weather?lat=\(coordinate.latitude)&lon=\(coordinate.longitude)&units=imperial&appid=cefe9f6a278ac1a382025f5f5776a434"
         
-        Alamofire.request(.GET, url)
-            .response { (request, response, data, error) in
-                if (error != nil) {
-                    println(error)
-                    failure(error!.description)
-                    return
-                }
-                
-                if (data != nil) {
-                    let jsonObject = JSON(data: data as NSData)
-                    let temp = self.currentTemperatureFromJson(jsonObject)
-                    success(temp)
-                    return
-                }
+        Alamofire.request(url).responseJSON { response in
+            if let error = response.error {
+                print(error)
+                failure(error.localizedDescription)
+                return
+            }
+            
+            if let data = response.data {
+                let jsonObject = try! JSON(data: data)
+                let temp = self.currentTemperatureFromJson(jsonObject)
+                success(temp)
+                return
+            }
         }
     }
     
-    private func currentTemperatureFromJson(json: JSON) -> Float {
+    private func currentTemperatureFromJson(_ json: JSON) -> Float {
         var ret: Float = 0.0
         
         if let weather = json["main"].dictionary {
             if let temp = weather["temp"]?.float {
-                println("current temp = \(temp)")
+                print("current temp = \(temp)")
                 ret = temp
             }
         }

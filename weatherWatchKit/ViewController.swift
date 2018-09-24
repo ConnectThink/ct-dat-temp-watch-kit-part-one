@@ -19,17 +19,17 @@ class ViewController: UIViewController, CLLocationManagerDelegate {
     
     @IBOutlet weak var temperatureLabel: UILabel!
     
-    private let locationManager = CLLocationManager()
+    fileprivate let locationManager = CLLocationManager()
     
-    private let weatherService: WeatherServiceProtocol = OpenWeatherMapWeatherService()
+    fileprivate let weatherService: WeatherServiceProtocol = OpenWeatherMapWeatherService()
     
     // MARK: -
     
-    @IBAction func refreshButtonTouchUpInside(sender: AnyObject) {
+    @IBAction func refreshButtonTouchUpInside(_ sender: AnyObject) {
         updateCurrentLocation()
     }
     
-    override func viewDidAppear(animated: Bool) {
+    override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         
         updateCurrentLocation()
@@ -37,7 +37,7 @@ class ViewController: UIViewController, CLLocationManagerDelegate {
     
     // MARK: - Location Handling
     
-    private func updateCurrentLocation() {
+    fileprivate func updateCurrentLocation() {
         locationManager.delegate = self
         
         locationManager.requestWhenInUseAuthorization()
@@ -48,30 +48,29 @@ class ViewController: UIViewController, CLLocationManagerDelegate {
         }
     }
     
-    func locationManager(manager: CLLocationManager!, didFailWithError error: NSError!) {
-        println(error)
+    func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
+        print(error)
     }
     
-    func locationManager(manager: CLLocationManager!, didUpdateLocations locations: [AnyObject]!) {
+    func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
         manager.stopUpdatingLocation()
         
-        let coordinate = manager.location.coordinate
-        
-        println("location = \(coordinate.latitude) \(coordinate.longitude)")
-        
-        updateTemperatureWithCoordinate(coordinate)
+        if let coordinate = manager.location?.coordinate {
+            print("location = \(coordinate.latitude) \(coordinate.longitude)")
+            updateTemperatureWithCoordinate(coordinate)
+        }
     }
     
     // MARK: Temperture Handling
     
-    private func updateTemperatureWithCoordinate(coordinate: CLLocationCoordinate2D) {
+    fileprivate func updateTemperatureWithCoordinate(_ coordinate: CLLocationCoordinate2D) {
         weatherService.retrieveTemperatureAtCoordinate(coordinate,
             success: { (temp) -> () in
                 let temperature = Int(temp)
                 self.temperatureLabel.text = "\(temperature)"
             },
             failure: { (errorMessage) -> () in
-                println(errorMessage)
+                print(errorMessage)
         })
     }
 }
